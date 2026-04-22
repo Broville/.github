@@ -1,0 +1,51 @@
+name: Sync Issue to Broville Roadmap Board
+
+on:
+  issues:
+    types: [opened, reopened, closed, labeled, unlabeled]
+
+permissions:
+  issues: read
+  contents: read
+
+jobs:
+  sync-to-board:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        run: |
+          pip install PyJWT cryptography
+          python3 -c "
+          import jwt, time, json, urllib.request, os
+          pem = os.environ['APP_PRIVATE_KEY']
+          now = int(time.time())
+          jwt_token = jwt.encode({'iat': now-60, 'exp': now+600, 'iss': os.environ['APP_ID']}, pem, algorithm='RS256')
+          req = urllib.request.Request(
+            f'https://api.github.com/app/installations/{os.environ[\"INSTALL_ID\"]}/access_tokens',
+            method='POST',
+            headers={'Authorization': f'Bearer {jwt_token}', 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json'},
+            data=b'{}',
+          )
+          with urllib.request.urlopen(req, timeout=30) as resp:
+            token = json.loads(resp.read())['token']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            f.write(f'token={token}')
+          "
+        env:
+          APP_ID: ${{ secrets.BROVILLE_APP_ID }}
+          INSTALL_ID: ${{ secrets.BROVILLE_INSTALL_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.BROVILLE_APP_PRIVATE_KEY }}
+
+      - name: Checkout .github repo
+        uses: actions/checkout@v4
+
+      - name: Sync Issue to Board
+        run: python3 scripts/sync-issue-to-board.py
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          ISSUE_NODE_ID: ${{ github.event.issue.node_id }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_STATE: ${{ github.event.issue.state }}
+          LABELS: ${{ join(github.event.issue.labels.*.name, ',') }}
