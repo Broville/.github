@@ -25,7 +25,7 @@ PRIORITY_FIELD = "PVTSSF_lADOEGI00s4BUgG0zhBny6w"
 DEPLOY_FIELD = "PVTSSF_lADOEGI00s4BUgG0zhBpM3c"
 
 STATUS = {"Backlog": "fe1c9b79", "Todo": "5e774a90", "In Progress": "915a2d40", "In Review": "885b0f1c", "Done": "dcd789f0"}
-PROJECTS = {"Second Brain": "737126cd", "Hermes": "b9ae0f22", "Infrastructure": "06c85b57", "Command Center": "7235fe51", "Homestead": "8b7cefc7", "Scribe": "c6f9822f", "PodWave": "ff2d31db", "Nibble": "4b04ee15"}
+PROJECTS = {"Second Brain": "ebe45758", "Hermes": "f0ac1c95", "Infrastructure": "f4612159", "Command Center": "df486c8e", "Homestead": "2f698b08", "Scribe": "e030a37b", "PodWave": "45898fc3", "Nibble": "4b04ee15"}
 PRIORITIES = {"P0 - Critical": "402a085e", "P1 - High": "f2192c64", "P2 - Medium": "1ae2c050", "P3 - Low": "2588bf33"}
 DEPLOYS = {"Not Deployed": "3b2f36cb", "Local Dev": "2bf382c1", "Canary": "a9da2a7a", "Production": "64afe0c5", "Promoted": "2e78c806"}
 
