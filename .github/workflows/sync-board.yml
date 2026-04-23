@@ -12,23 +12,20 @@ jobs:
   sync-to-board:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout .github repo
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.BROVILLE_APP_ID }}
+          private-key: ${{ secrets.BROVILLE_APP_PRIVATE_KEY }}
+          installation-id: ${{ secrets.BROVILLE_INSTALL_ID }}
+
+      - name: Checkout .github repo for sync script
         uses: actions/checkout@v4
         with:
           repository: Broville/.github
-          token: ${{ steps.app-token.outputs.token || github.token }}
+          token: ${{ steps.app-token.outputs.token }}
           path: .github-org
-
-      - name: Generate GitHub App Token
-        id: app-token
-        run: |
-          pip install PyJWT cryptography
-          python3 .github-org/scripts/generate_app_token.py
-        env:
-          APP_ID: ${{ secrets.BROVILLE_APP_ID }}
-          INSTALL_ID: ${{ secrets.BROVILLE_INSTALL_ID }}
-          APP_PRIVATE_KEY: ${{ secrets.BROVILLE_APP_PRIVATE_KEY }}
-          GITHUB_OUTPUT: ${{ github.output }}
 
       - name: Sync Issue to Board
         run: python3 .github-org/scripts/sync-issue-to-board.py
