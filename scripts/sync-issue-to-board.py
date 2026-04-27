@@ -31,6 +31,7 @@ DEPLOYS = {"Not Deployed": "3b2f36cb", "Local Dev": "2bf382c1", "Canary": "a9da2
 
 REPO_TO_PROJECT = {
     "second-brain": "Second Brain",
+    "second-brain-user-vault": "Second Brain",
     "pages": "Infrastructure",
     "homestead": "Homestead",
     "command-center": "Command Center",
@@ -38,7 +39,6 @@ REPO_TO_PROJECT = {
     "nibble": "Nibble",
     "podwave": "PodWave",
     "aegischat": "Hermes",
-    "second-brain-user-vault": "Second Brain",
 }
 
 
@@ -89,7 +89,6 @@ def main():
     print(f"Syncing {key} (state={issue_state}, labels={labels})")
 
     # Step 1: Check if issue is already on the board
-    key_lower = key.lower()
     board_q = """query($pid: ID!) {
       node(id: $pid) {
         ... on ProjectV2 {
@@ -124,10 +123,10 @@ def main():
         }"""
         r = api_graphql(add_m, token, {"pid": PROJECT_ID, "cid": issue_node_id})
         if "errors" in r:
-            print(f"  \u274c ADD FAILED: {r['errors'][0].get('message','?')}")
+            print(f"  ❌ ADD FAILED: {r['errors'][0].get('message','?')}")
             sys.exit(1)
         item_id = r["data"]["addProjectV2ItemById"]["item"]["id"]
-        print(f"  \u2705 Added (item: {item_id[:12]}...)")
+        print(f"  ✅ Added (item: {item_id[:12]}...)")
     else:
         print(f"  Already on board (item: {item_id[:12]}...)")
 
@@ -136,6 +135,9 @@ def main():
     project = REPO_TO_PROJECT.get(repo_name)
     priority = get_priority(labels)
     deploy = get_deploy(issue_state, labels)
+
+    if not project:
+        print(f"  ⚠️ No Project mapping for repo '{repo_name}' — skipping Project field")
 
     for field_id, option_val, option_map in [
         (STATUS_FIELD, status, STATUS),
@@ -152,11 +154,11 @@ def main():
             }"""
             r = api_graphql(update_m, token, {"pid": PROJECT_ID, "iid": item_id, "fid": field_id, "oid": option_map[option_val]})
             if "errors" in r:
-                print(f"  \u26a0\ufe0f Field {option_val} failed: {r['errors'][0].get('message','?')}")
+                print(f"  ⚠️ Field {option_val} failed: {r['errors'][0].get('message','?')}")
             else:
-                print(f"  \u2705 Set {field_id.split('_')[-1]}={option_val}")
+                print(f"  ✅ Set {option_val}")
 
-    print(f"  Done: Status={status}, Project={project}, Priority={priority}, Deploy={deploy}")
+    print(f"  Done: Status={status}, Project={project or '(unmapped)'}, Priority={priority}, Deploy={deploy}")
 
 
 if __name__ == "__main__":
