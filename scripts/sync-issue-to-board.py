@@ -25,7 +25,7 @@ PRIORITY_FIELD = "PVTSSF_lADOEGI00s4BUgG0zhBny6w"
 DEPLOY_FIELD = "PVTSSF_lADOEGI00s4BUgG0zhBpM3c"
 
 STATUS = {"Backlog": "fe1c9b79", "Todo": "5e774a90", "In Progress": "915a2d40", "In Review": "885b0f1c", "Done": "dcd789f0"}
-PROJECTS = {"Second Brain": "ebe45758", "Hermes": "f0ac1c95", "Infrastructure": "f4612159", "Command Center": "df486c8e", "Homestead": "2f698b08", "Scribe": "e030a37b", "PodWave": "45898fc3", "Nibble": "4b04ee15"}
+PROJECTS = {"Second Brain": "e5802239", "Hermes": "0b64c446", "Infrastructure": "1d2e1dce", "Command Center": "c653420c", "Homestead": "de150716", "Backlog Companion": "1c58f79a", "PodWave": "55440c93", "Nibble": "e3a9c2d8"}
 PRIORITIES = {"P0 - Critical": "402a085e", "P1 - High": "f2192c64", "P2 - Medium": "1ae2c050", "P3 - Low": "2588bf33"}
 DEPLOYS = {"Not Deployed": "3b2f36cb", "Local Dev": "2bf382c1", "Canary": "a9da2a7a", "Production": "64afe0c5", "Promoted": "2e78c806"}
 
@@ -34,8 +34,9 @@ REPO_TO_PROJECT = {
     "pages": "Infrastructure",
     "homestead": "Homestead",
     "command-center": "Command Center",
-    "backlog-companion": "Homestead",
+    "backlog-companion": "Backlog Companion",
     "nibble": "Nibble",
+    "podwave": "PodWave",
     "aegischat": "Hermes",
     "second-brain-user-vault": "Second Brain",
 }
@@ -123,10 +124,10 @@ def main():
         }"""
         r = api_graphql(add_m, token, {"pid": PROJECT_ID, "cid": issue_node_id})
         if "errors" in r:
-            print(f"  ❌ ADD FAILED: {r['errors'][0].get('message','?')}")
+            print(f"  \u274c ADD FAILED: {r['errors'][0].get('message','?')}")
             sys.exit(1)
         item_id = r["data"]["addProjectV2ItemById"]["item"]["id"]
-        print(f"  ✅ Added (item: {item_id[:12]}...)")
+        print(f"  \u2705 Added (item: {item_id[:12]}...)")
     else:
         print(f"  Already on board (item: {item_id[:12]}...)")
 
@@ -151,9 +152,9 @@ def main():
             }"""
             r = api_graphql(update_m, token, {"pid": PROJECT_ID, "iid": item_id, "fid": field_id, "oid": option_map[option_val]})
             if "errors" in r:
-                print(f"  ⚠️ Field {option_val} failed: {r['errors'][0].get('message','?')}")
+                print(f"  \u26a0\ufe0f Field {option_val} failed: {r['errors'][0].get('message','?')}")
             else:
-                print(f"  ✅ Set {field_id.split('_')[-1]}={option_val}")
+                print(f"  \u2705 Set {field_id.split('_')[-1]}={option_val}")
 
     print(f"  Done: Status={status}, Project={project}, Priority={priority}, Deploy={deploy}")
 
